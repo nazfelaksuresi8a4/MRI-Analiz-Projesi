@@ -1,0 +1,95 @@
+QWidget{
+    background-color: rgb(145, 151, 151);
+}
+
+QPushButton{
+    background-color: rgb(57,57,57) ;
+    color: rgb(222, 40, 40);
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+QLabel{
+    border: 1.5px solid rgb(43, 41, 142)e;
+    color: rgb(0, 0, 0);
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+QCheckBox{
+    color: rgb(0, 0, 0);
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 5px;
+    border: 1px solid black;
+}
+
+QListWidget{
+    background-color: rgb(57, 57, 57);
+    font-size: 20px;
+    font-weight: bolder;
+    color:brown;
+}
+
+QTreeView{
+    background-color: rgb(57, 57, 57);
+    font-size: 20px;
+    font-weight: bolder;
+    color:brown;
+}
+
+QLineEdit {
+    background-color: #2e2e2e;
+    color: #ffffff;
+    border: 1px solid #555;
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+QLineEdit:focus {
+    border: 1px solid #007acc;
+    background-color: #3b3b3b;
+}
+
+QSlider::groove:horizontal {
+    border: 1px solid #999999;
+    height: 6px;
+    background: #444;
+    margin: 2px 0;
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    background: #007acc;
+    border: 1px solid #5c5c5c;
+    width: 14px;
+    height: 14px;
+    margin: -5px 0;
+    border-radius: 7px;
+}
+
+QSlider::sub-page:horizontal {
+    background: #007acc;
+    border: 1px solid #777;
+    height: 6px;
+    border-radius: 3px;
+}
+
+QSlider::add-page:horizontal {
+    background: #2e2e2e;
+    border: 1px solid #777;
+    height: 6px;
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal:hover {
+    background: #00aaff;
+    border: 1px solid #5c5c5c;
+}
+
+QSplitter{
+    border: 0.5px solid gray
+}
