@@ -2,6 +2,8 @@ from PyQt5.QtWidgets import*
 from PyQt5.QtCore import*
 from PyQt5.QtGui import*
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT  as NavigationToolbar
+
 import system
 import matplotlib.pyplot as plt
 import image_processing
@@ -79,8 +81,9 @@ class MainUİ(QMainWindow):
 
         self.blur_slider = QSlider(Qt.Horizontal)
 
-        fig,ax = plt.subplots(nrows=1,ncols=3,figsize=(14,4),facecolor='gray')
+        fig,ax = plt.subplots(nrows=1,ncols=3,figsize=(14,4),facecolor='black')
         self.fig_canvas_t1 = FigureCanvas(figure=fig)
+        self.custom_toolbar = NavigationToolbar(canvas=self.fig_canvas_t1)
 
         self.file_path = QLineEdit()
         self.folder_path = QLineEdit()
@@ -97,10 +100,18 @@ class MainUİ(QMainWindow):
         self.define_folder_button = QPushButton(text='Klasör Tanımla')
         self.reset_path_button = QPushButton(text='Sıfırla')
 
-        self.mrı_select_information = QLabel(text='İşlem yapılacak MRI Görüntülerini Seç.')
+        self.mrı_select_information = QLabel(text='İşlem yapılacak MRI görüntüleme türünü Seç')
         self.t1_checkbox = QCheckBox()
         self.t2_checkbox = QCheckBox()
         self.flair_checkbox = QCheckBox()
+
+        self.defined_fig,self.defined_ax = plt.subplots(nrows=1,ncols=1,figsize=(5,4),facecolor='black')
+        self.defined_ax.axis('off')
+        self.defined_figurecanvas_object = FigureCanvas(self.defined_fig)
+        self.defined_figurecanvas_object.setStyleSheet('border:1 px solid black')
+
+        self.defined_ax.imshow(image_processing.to_matrix('t1.png'))
+
         self.t1_checkbox.setText('T1 MRI')
         self.t2_checkbox.setText('T2 MRI')
         self.flair_checkbox.setText('Flair MRI')
@@ -163,13 +174,14 @@ class MainUİ(QMainWindow):
         self.mri_monitor_view_settings_splitter_container.addWidget(self.median_splitter)
         self.mri_monitor_view_settings_splitter_container.addWidget(self.blur_splitter)
 
-        self.file_system_splitter.addWidget(self.file_path)
+        #self.file_system_splitter.addWidget(self.file_path)
         self.file_system_splitter.addWidget(self.folder_path)
         self.file_system_splitter.addWidget(self.tree_view)
         self.file_system_splitter.addWidget(self.define_folder_button)
         self.file_system_splitter.addWidget(self.define_file_button)
         self.file_system_splitter.addWidget(self.reset_path_button)
 
+        self.mri_monitor_splitter.addWidget(self.custom_toolbar)
         self.mri_monitor_splitter.addWidget(self.fig_canvas_t1)
         self.mri_monitor_splitter.addWidget(self.mri_monitor_view_settings_splitter_container)
 
@@ -177,9 +189,14 @@ class MainUİ(QMainWindow):
         self.image_selecter_splitter.addWidget(self.t1_checkbox)
         self.image_selecter_splitter.addWidget(self.t2_checkbox)
         self.image_selecter_splitter.addWidget(self.flair_checkbox)
-        for cont in [QLabel(),QLabel(),QLabel(),QLabel()]:
-            cont.setStyleSheet('border:none')
-            self.image_selecter_splitter.addWidget(cont)
+
+        self.cont_container = [QLabel(),QLabel(text='Tanımlanan görüntü')]
+
+        for cont in range(len(self.cont_container)):
+            self.cont_container[cont].setStyleSheet('border:none')
+            self.cont_container[cont].setAlignment(Qt.AlignCenter)
+            self.image_selecter_splitter.addWidget(self.cont_container[cont])
+        self.image_selecter_splitter.addWidget(self.defined_figurecanvas_object)
 
         for a in range(len(ax)):
             ax[a].axis('off')
@@ -188,19 +205,53 @@ class MainUİ(QMainWindow):
         ax[1].imshow(image_processing.to_matrix('t2.png'))
         ax[2].imshow(image_processing.to_matrix('flair.png'))
 
+        ax[0].set_title('T1-MRI',color='white')
+        ax[1].set_title('T2-MRI',color='white')
+        ax[2].set_title('Flair-MRI',color='white')
+
         #timers-side#
         self.optimize_w_timer = QTimer(self)
         self.optimize_w_timer.start(10)
         self.optimize_w_timer.timeout.connect(self.optimize_widget_sizes)
 
-        self.setCentralWidget(self.main_widget)
+        #signal-slot-side#
+        self.define_folder_button.clicked.connect(self.define_folder)
+        self.define_file_button.clicked.connect(self.define_file)
 
+        #css-define-side#
         file = open(r'program_css.qss','r').read()
         self.setStyleSheet(str(file))
-        print(str(file))
+
+        self.setCentralWidget(self.main_widget)
+
 
     def optimize_widget_sizes(self):
         self.checbox_reset_button.setFixedHeight(self.save_mri_image_button.height())
+        self.checbox_apply_button.setFixedHeight(self.save_mri_image_button.height())
+
+    def define_folder(self):
+        folder_path = self.folder_path.text()
+        modelindex = self.file_system_model.setRootPath(folder_path)
+        self.tree_view.setRootIndex(modelindex)
+
+    def define_file(self):
+        current_selected = self.file_system_model.filePath(self.tree_view.currentIndex())
+
+        try:
+            if current_selected.endswith('.nii') or current_selected.endswith('.dcm') or current_selected.endswith('.png') or current_selected.endswith('jpg'):
+                print(current_selected)
+                information_message = QMessageBox.information(self,'TANİMLAMA İSLEMİ BASARİLİ','Medikal goruntu dosyasi basari ile tanimlandi!')
+            
+                if current_selected.endswith('.png') or current_selected.endswith('.jpg'):
+                    self.defined_ax.imshow(image_processing.to_matrix(current_selected))
+                    self.defined_figurecanvas_object.draw()
+
+            else:
+                warnin_message = QMessageBox.warning(self,'TANİMLAMA İSLEMİ BASARİSİZ','Lütfen aşağıdaki belirtilen dosya uzantıları hariç bir dosyayı tanımlamaya çalışmayınız:\n\n.nii .dcm .png .jpg')
+                
+                    
+        except Exception as exception_1:
+            print(exception_1)
 
 def startGui():
     sp = QApplication(system._s.argv)

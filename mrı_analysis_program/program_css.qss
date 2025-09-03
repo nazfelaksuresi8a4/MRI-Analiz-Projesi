@@ -1,5 +1,5 @@
 QWidget{
-    background-color: rgb(145, 151, 151);
+    background-color: rgb(115, 115, 115);
 }
 
 QPushButton{
@@ -9,21 +9,29 @@ QPushButton{
     font-weight: bold;
     border-radius: 5px;
 }
+QPushButton:hover{
+    background-color: #2e2e2e;
+    font-size: 16px;
+}
+QPushButton:pressed{
+    background-color: #979696;
+    font-size: 20px;
+}
 
 QLabel{
-    border: 1.5px solid rgb(43, 41, 142)e;
-    color: rgb(0, 0, 0);
+    border: 1.5px solid rgb(43, 41, 142);
+    color: rgb(255, 255, 255);
     font-size: 15px;
     font-weight: bold;
     border-radius: 5px;
 }
 
 QCheckBox{
-    color: rgb(0, 0, 0);
+    color: rgb(254, 254, 254);
     font-size: 15px;
     font-weight: bold;
     border-radius: 5px;
-    border: 1px solid black;
+    border: 1px solid darkblue;
 }
 
 QListWidget{
@@ -35,9 +43,9 @@ QListWidget{
 
 QTreeView{
     background-color: rgb(57, 57, 57);
-    font-size: 20px;
+    font-size: 14px;
     font-weight: bolder;
-    color:brown;
+    color:rgb(0, 0, 0);
 }
 
 QLineEdit {
