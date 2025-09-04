@@ -87,6 +87,7 @@ class MainUİ(QMainWindow):
         self.blur_slider = QSlider(Qt.Horizontal)
 
         self.figure_object_mrı_monitor,self.axes_object_mrı_monitor = plt.subplots(nrows=1,ncols=3,figsize=(14,4),facecolor='gray')
+
         self.fig_canvas_t1 = FigureCanvas(figure=self.figure_object_mrı_monitor)
         self.custom_toolbar = NavigationToolbar(canvas=self.fig_canvas_t1)
 
@@ -191,7 +192,7 @@ class MainUİ(QMainWindow):
         self.file_system_splitter.addWidget(self.define_folder_button)
         self.file_system_splitter.addWidget(self.define_file_button)
         self.file_system_splitter.addWidget(self.reset_path_button)
-
+        
         self.mri_monitor_splitter.addWidget(self.custom_toolbar)
         self.mri_monitor_splitter.addWidget(self.fig_canvas_t1)
         self.mri_monitor_splitter.addWidget(self.mri_monitor_view_settings_splitter_container)
@@ -288,6 +289,9 @@ class MainUİ(QMainWindow):
                 information_message = QMessageBox.information(self,'TANİMLAMA İSLEMİ BASARİLİ','Medikal goruntu dosyasi basari ile tanimlandi!')
             
                 if self.current_selected.endswith('.png') or self.current_selected.endswith('.jpg'):
+                    self.defined_ax.clear()
+                    self.defined_figurecanvas_object.draw()
+                    
                     self.axes_like = self.defined_ax.imshow(image_processing.to_matrix(self.current_selected))
                     self.defined_figurecanvas_object.draw()
 
@@ -314,6 +318,9 @@ class MainUİ(QMainWindow):
                     
                 except:
                     try:
+                        self.defined_ax.clear()
+                        self.defined_figurecanvas_object.draw()
+
                         warning_message = QMessageBox.warning(self,'Dosyan bulunamıyor','Sistem dosyayı bulamadı. Lütfen dosyayı manuel olarak Tekrar seçiniz!') 
 
                         current_url,string = QFileDialog(self).getOpenFileUrl(self)           
@@ -324,15 +331,22 @@ class MainUİ(QMainWindow):
                         self.fig_canvas_t1.draw()
 
                     except:
+                        self.defined_ax.clear()
+                        self.defined_figurecanvas_object.draw()
+
                         warning_message = QMessageBox.warning(self,'Dosya bulunamıyor','Sistem dosyayı bulamadı. Lütfen dosyayı manuel olarak Tekrar seçiniz!') 
 
                         current_name = 'none'     
 
                         self.axes_object_mrı_monitor[0].imshow(image_matrix)
+
                         self.fig_canvas_t1.draw()
 
 
             else:   
+                self.defined_ax.clear()
+                self.defined_figurecanvas_object.draw()
+
                 image_matrix = image_processing.to_matrix(path)
                 self.axes_object_mrı_monitor[0].imshow(image_matrix)
                 self.fig_canvas_t1.draw()
