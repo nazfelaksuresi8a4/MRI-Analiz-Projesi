@@ -81,7 +81,7 @@ class MainUİ(QMainWindow):
 
         self.blur_slider = QSlider(Qt.Horizontal)
 
-        fig,ax = plt.subplots(nrows=1,ncols=3,figsize=(14,4),facecolor='black')
+        fig,ax = plt.subplots(nrows=1,ncols=3,figsize=(14,4),facecolor='gray')
         self.fig_canvas_t1 = FigureCanvas(figure=fig)
         self.custom_toolbar = NavigationToolbar(canvas=self.fig_canvas_t1)
 
@@ -105,10 +105,13 @@ class MainUİ(QMainWindow):
         self.t2_checkbox = QCheckBox()
         self.flair_checkbox = QCheckBox()
 
-        self.defined_fig,self.defined_ax = plt.subplots(nrows=1,ncols=1,figsize=(5,4),facecolor='black')
+        self.defined_fig,self.defined_ax = plt.subplots(nrows=1,ncols=1,figsize=(5,4),facecolor='gray')
         self.defined_ax.axis('off')
         self.defined_figurecanvas_object = FigureCanvas(self.defined_fig)
-        self.defined_figurecanvas_object.setStyleSheet('border:1 px solid black')
+        self.defined_figurecanvas_object.setStyleSheet('border:1 px solid gray')
+
+        self.add_to_list_button = QPushButton(text='Görüntüyü listeye ekle')
+        self.delete_image_button = QPushButton(text='Görüntüyü Sil')
 
         self.defined_ax.imshow(image_processing.to_matrix('t1.png'))
 
@@ -197,6 +200,8 @@ class MainUİ(QMainWindow):
             self.cont_container[cont].setAlignment(Qt.AlignCenter)
             self.image_selecter_splitter.addWidget(self.cont_container[cont])
         self.image_selecter_splitter.addWidget(self.defined_figurecanvas_object)
+        self.image_selecter_splitter.addWidget(self.add_to_list_button)
+        self.image_selecter_splitter.addWidget(self.delete_mri_image_button)
 
         for a in range(len(ax)):
             ax[a].axis('off')
@@ -228,6 +233,8 @@ class MainUİ(QMainWindow):
     def optimize_widget_sizes(self):
         self.checbox_reset_button.setFixedHeight(self.save_mri_image_button.height())
         self.checbox_apply_button.setFixedHeight(self.save_mri_image_button.height())
+        self.add_to_list_button.setFixedHeight(self.define_file_button.height())
+        self.delete_mri_image_button.setFixedHeight(self.reset_path_button.height())
 
     def define_folder(self):
         folder_path = self.folder_path.text()
