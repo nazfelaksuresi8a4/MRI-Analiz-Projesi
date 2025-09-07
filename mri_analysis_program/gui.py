@@ -43,6 +43,8 @@ class MainUİ(QMainWindow):
         self.median_splitter = QSplitter(Qt.Vertical)
         self.blur_splitter = QSplitter(Qt.Vertical)
         self.edege_splitter = QSplitter(Qt.Vertical)
+
+        self.select_threshold_splitter = QSplitter(Qt.Horizontal)
         
         #program-widget-side#
         self.mri_list = QListWidget()
@@ -112,6 +114,20 @@ class MainUİ(QMainWindow):
         self.t2_checkbox = QCheckBox()
         self.flair_checkbox = QCheckBox()
 
+        self.threshold_binary_checkbox = QCheckBox()
+        self.threshold_otsu_checkbox = QCheckBox()
+        self.threshold_tozero_checkbox = QCheckBox()
+        self.threshold_tozero_ınv_checkbox = QCheckBox()
+        self.threshold_trunc_checkbox = QCheckBox()
+        self.threshold_binary_inv_checkbox = QCheckBox()
+
+        self.threshold_binary_checkbox.setText('İkili eşikleme')
+        self.threshold_binary_inv_checkbox.setText('Ters ikili eşikleme')
+        self.threshold_trunc_checkbox.setText('Sınırlı eşikleme')
+        self.threshold_tozero_checkbox.setText('Sıfıra eşikleme')
+        self.threshold_tozero_ınv_checkbox.setText('Ters sıfıra eşikleme')
+
+
         self.defined_fig,self.defined_ax = plt.subplots(nrows=1,ncols=1,figsize=(5,4),facecolor='gray')
         self.defined_ax.axis('off')
         self.defined_figurecanvas_object = FigureCanvas(self.defined_fig)
@@ -169,13 +185,17 @@ class MainUİ(QMainWindow):
 
         self.mri_list_splitter.addWidget(self.mri_list)
         self.mri_list_splitter.addWidget(self.show_mri_image_button)
-        self.mri_list_splitter.addWidget(self.add_mri_image_button)
+        #self.mri_list_splitter.addWidget(self.add_mri_image_button)
         self.mri_list_splitter.addWidget(self.delete_mri_image_button)
         self.mri_list_splitter.addWidget(self.save_mri_image_button)
 
+        self.mri_monitor_image_settings_splitter.addWidget(QLabel(text='Mrı Görüntüsünün işlenme türünü seç'))
         self.mri_monitor_image_settings_splitter.addWidget(self.tumor_detection_checkbox)
         self.mri_monitor_image_settings_splitter.addWidget(self.bright_dimmer_checkbox)
         self.mri_monitor_image_settings_splitter.addWidget(self.normal_setting_checkbox)
+        for contf_ in [QLabel(),QLabel(),QLabel(),QLabel(),QLabel(),QLabel(),QLabel(),QLabel(),QLabel(),QLabel(),QLabel(),QLabel(),QLabel(),QLabel(),QLabel()]:
+            contf_.setStyleSheet('border: none')
+            self.mri_monitor_image_settings_splitter.addWidget(contf_)
         self.mri_monitor_image_settings_splitter.addWidget(self.checbox_apply_button)
         self.mri_monitor_image_settings_splitter.addWidget(self.checbox_reset_button)
 
@@ -194,6 +214,7 @@ class MainUİ(QMainWindow):
         self.file_system_splitter.addWidget(self.define_file_button)
         self.file_system_splitter.addWidget(self.reset_path_button)
         
+        self.mri_monitor_splitter.addWidget(self.select_threshold_splitter)
         self.mri_monitor_splitter.addWidget(self.custom_toolbar)
         self.mri_monitor_splitter.addWidget(self.fig_canvas_t1)
         self.mri_monitor_splitter.addWidget(self.mri_monitor_view_settings_splitter_container)
@@ -202,6 +223,13 @@ class MainUİ(QMainWindow):
         self.image_selecter_splitter.addWidget(self.t1_checkbox)
         self.image_selecter_splitter.addWidget(self.t2_checkbox)
         self.image_selecter_splitter.addWidget(self.flair_checkbox)
+
+        self.select_threshold_splitter.addWidget(self.threshold_binary_checkbox)
+        self.select_threshold_splitter.addWidget(self.threshold_binary_inv_checkbox)
+        self.select_threshold_splitter.addWidget(self.threshold_tozero_checkbox)
+        self.select_threshold_splitter.addWidget(self.threshold_tozero_ınv_checkbox)
+        self.select_threshold_splitter.addWidget(self.threshold_trunc_checkbox)
+        self.select_threshold_splitter.addWidget(self.threshold_otsu_checkbox)
 
         self.cont_container = [QLabel(),QLabel(text='Tanımlanan görüntü')]
 
@@ -344,13 +372,13 @@ class MainUİ(QMainWindow):
                     self.fig_canvas_t1.draw()
                     print('f1')
 
-            if path == 'Belirtilmedi':
+            else:
                 try:
                     file_name = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[0].split(':')[1].strip()
 
-                    image_matrix = image_processing.to_matrix(file_actions.matrix_returner(name=file_name,path=path))
+                    image_matrix = image_processing.to_matrix(path)
                         
-                    self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                    self.axes_object_mrı_monitor[0].imshow(image_matrix,cmap='gray')
                     self.fig_canvas_t1.draw()
                     print('f1')
             
@@ -398,7 +426,7 @@ class MainUİ(QMainWindow):
                             print('noneeeee')
 
 
-            else:   
+             
                 try:
                     dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
                     image_matrix = dat 

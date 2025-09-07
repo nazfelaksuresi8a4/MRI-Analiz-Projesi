@@ -28,6 +28,7 @@ QLabel{
 
 QCheckBox{
     color: rgb(254, 254, 254);
+    background-color: #393131;
     font-size: 15px;
     font-weight: bold;
     border-radius: 5px;
