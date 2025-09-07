@@ -59,6 +59,10 @@ class MainUİ(QMainWindow):
         self.normal_setting_checkbox = QCheckBox()
         self.checbox_apply_button = QPushButton(text='Uygula')
         self.checbox_reset_button = QPushButton(text='Sıfırla')
+
+        self.return_preverius_matrix = QPushButton(text='İşlemi geri al')
+        self.update_matrix_object = QPushButton(text='İşlemi kaydet')
+
         self.tumor_detection_checkbox.setText('Tümör Tespiti')
         self.bright_dimmer_checkbox.setText('Görüntüyü Parlat')
         self.normal_setting_checkbox.setText('Normal Şekilde Göster')
@@ -213,6 +217,8 @@ class MainUİ(QMainWindow):
         self.mri_monitor_splitter.addWidget(self.select_threshold_splitter)
         self.mri_monitor_splitter.addWidget(self.custom_toolbar)
         self.mri_monitor_splitter.addWidget(self.fig_canvas_t1)
+        self.mri_monitor_splitter.addWidget(self.return_preverius_matrix)
+        self.mri_monitor_splitter.addWidget(self.update_matrix_object)
         self.mri_monitor_splitter.addWidget(self.mri_monitor_view_settings_splitter_container)
 
         self.image_selecter_splitter.addWidget(self.mrı_select_information)
@@ -259,6 +265,10 @@ class MainUİ(QMainWindow):
         self.add_to_list_button.clicked.connect(self.list_item_igniter)
         self.delete_mri_image_button.clicked.connect(self.delete_list_item_function)
         self.show_mri_image_button.clicked.connect(self.monitor_image_export_igniter)
+        
+        #signal-slot-matrix-actions-side#
+        self.update_matrix_object.clicked.connect(self.get_current_matrix)
+        self.return_preverius_matrix.clicked.connect(self.remove_image_from_axes)
 
         #signal-slot-slider-side#
         self.threshold_bins_slider.valueChanged.connect(self.threshold_igniter)
@@ -276,6 +286,18 @@ class MainUİ(QMainWindow):
         self.setStyleSheet(str(file))
 
         self.setCentralWidget(self.main_widget)
+
+
+    def get_current_matrix(self):
+        if self.t1_checkbox.isChecked() == True:
+            self.axes_like = self.axes_object_mrı_monitor[0].get_images().pop()
+            print(self.axes_like)
+
+    def remove_image_from_axes(self):
+        self.axes_object_mrı_monitor[0].clear()
+        self.axes_object_mrı_monitor[0].imshow([[0,0,0,0]])
+        self.axes_like = self.axes_object_mrı_monitor[0].get_images()
+        self.fig_canvas_t1.draw()
 
     def threshold_igniter(self):
         if self.t1_checkbox.isChecked() == True:
@@ -365,12 +387,17 @@ class MainUİ(QMainWindow):
             self.fig_canvas_t1.draw()
     
     def sobel_to_normal_matrix(self):
-        if self.t1_checkbox.isChecked() == True:
-            self.axes_object_mrı_monitor[0].clear()
-            self.fig_canvas_t1.draw()
-            
-            self.axes_object_mrı_monitor[0].imshow(self.sobel_to_normal_matrix_value,cmap='gray')
-            self.fig_canvas_t1.draw()
+        try:
+            if self.t1_checkbox.isChecked() == True:
+                self.axes_object_mrı_monitor[0].clear()
+                self.fig_canvas_t1.draw()
+                
+                self.axes_object_mrı_monitor[0].imshow(self.sobel_to_normal_matrix_value,cmap='gray')
+                self.fig_canvas_t1.draw()
+
+        except Exception as sobel_to_normal_matrix_exception:
+            print(f'function: sobel_to_normal_matrix\nerror:{sobel_to_normal_matrix_exception}')
+            pass
 
     def optimize_widget_sizes(self):
         self.checbox_reset_button.setFixedHeight(self.save_mri_image_button.height())
