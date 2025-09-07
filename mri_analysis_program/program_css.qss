@@ -38,8 +38,8 @@ QCheckBox{
 QListWidget{
     background-color: rgb(57, 57, 57);
     font-size: 20px;
-    font-weight: bolder;
-    color:brown;
+    font-weight: lighter;
+    color:rgb(255, 255, 255);
 }
 
 QTreeView{

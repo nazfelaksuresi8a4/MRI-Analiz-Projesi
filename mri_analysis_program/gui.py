@@ -79,7 +79,8 @@ class MainUİ(QMainWindow):
         self.edge_thres1_slider = QSlider(Qt.Horizontal)
         self.edge_thres2_slider = QSlider(Qt.Horizontal)
 
-        self.sobel_val_slider = QSlider(Qt.Horizontal)
+        self.sobel_button = QPushButton(text='Kenarları netleştir')
+        self.sobel_to_normal_button = QPushButton(text='Eski görsele dön')
 
         self.gaussian_x_slider = QSlider(Qt.Horizontal)
         self.gaussian_y_slider = QSlider(Qt.Horizontal)
@@ -143,16 +144,10 @@ class MainUİ(QMainWindow):
         self.flair_checkbox.setText('Flair MRI')
 
         #widget-parent-settings#
-        icons = ['t1.png','t2.png','tumor.jpg']
-        import os 
-
-        for icon in icons:
-            self.mri_list_item = QListWidgetItem(str(f'Dosya ismi: {icon}\nDosya yolu: Belirtilmedi'))
-            self.mri_list_item.setIcon(QIcon(str(icon)))
-            self.mri_list.setIconSize(QSize(64,64))
-            self.mri_list.addItem(self.mri_list_item)
-        
-            self.list_item_f = self.mri_list_item
+        item = QListWidgetItem('MRI Görüntüleri burada gözükecektir..')
+        item.setTextAlignment(Qt.AlignCenter)
+        self.mri_list.addItem(item)
+        self.mri_list.setIconSize(QSize(64,64))
 
         self.main_layout.addWidget(self.monitor_splitter_container)
 
@@ -164,7 +159,8 @@ class MainUİ(QMainWindow):
         self.threshold_splitter.addWidget(self.threshold_maxval_slider)
 
         self.sobel_splitter.addWidget(self.sobel_label)
-        self.sobel_splitter.addWidget(self.sobel_val_slider)
+        self.sobel_splitter.addWidget(self.sobel_button)
+        self.sobel_splitter.addWidget(self.sobel_to_normal_button)
 
         self.gauss_splitter.addWidget(self.gaussian_label)
         self.gauss_splitter.addWidget(self.gaussian_x_slider)
@@ -202,10 +198,10 @@ class MainUİ(QMainWindow):
         self.mri_monitor_view_settings_splitter_container.addWidget(self.gauss_splitter)
         self.mri_monitor_view_settings_splitter_container.addWidget(self.threshold_splitter)
         self.mri_monitor_view_settings_splitter_container.addWidget(self.edege_splitter)
-        self.mri_monitor_view_settings_splitter_container.addWidget(self.sobel_splitter)
         self.mri_monitor_view_settings_splitter_container.addWidget(self.depth_splitter)
         self.mri_monitor_view_settings_splitter_container.addWidget(self.median_splitter)
         self.mri_monitor_view_settings_splitter_container.addWidget(self.blur_splitter)
+        self.mri_monitor_view_settings_splitter_container.addWidget(self.sobel_splitter)
 
         #self.file_system_splitter.addWidget(self.file_path)
         self.file_system_splitter.addWidget(self.folder_path)
@@ -264,13 +260,117 @@ class MainUİ(QMainWindow):
         self.delete_mri_image_button.clicked.connect(self.delete_list_item_function)
         self.show_mri_image_button.clicked.connect(self.monitor_image_export_igniter)
 
+        #signal-slot-slider-side#
+        self.threshold_bins_slider.valueChanged.connect(self.threshold_igniter)
+        self.threshold_maxval_slider.valueChanged.connect(self.threshold_igniter)
+
+        self.gaussian_x_slider.valueChanged.connect(self.gaussian_igniter)
+        self.gaussian_y_slider.valueChanged.connect(self.gaussian_igniter)
+        self.gaussian_z_slider.valueChanged.connect(self.gaussian_igniter)
+
+        self.sobel_button.clicked.connect(self.sobel_igniter)
+        self.sobel_to_normal_button.clicked.connect(self.sobel_to_normal_matrix)
+
         #css-define-side#
         file = open(r'program_css.qss','r').read()
         self.setStyleSheet(str(file))
 
         self.setCentralWidget(self.main_widget)
+
+    def threshold_igniter(self):
+        if self.t1_checkbox.isChecked() == True:
+            if self.threshold_binary_checkbox.isChecked() == True:
+                self.flag = 'binary'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[0].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()
+            
+            elif self.threshold_binary_inv_checkbox.isChecked() == True:
+                self.flag = 'binary_inv'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[0].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()     
+
+            elif self.threshold_trunc_checkbox.isChecked() == True:
+                self.flag = 'threshold_trunc'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[0].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()    
+            
+            elif self.threshold_tozero_checkbox.isChecked() == True:
+                self.flag = 'threshold_tozero'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[0].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()     
+
+            elif self.threshold_tozero_ınv_checkbox.isChecked() == True:
+                self.flag = 'threshold_tozero_inv'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[0].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()     
+
+    def gaussian_igniter(self):
+        if self.t1_checkbox.isChecked() == True:
+            self.matrix = self.axes_like.get_array()
+            self.ksize = (self.gaussian_x_slider.value(),self.gaussian_x_slider.value())
+            self.sigmaX = self.gaussian_y_slider.value()
+            self.sigmaY = self.gaussian_z_slider.value()
+
+            self.gaussian_function_tuple_data = image_processing.gaussian_function(self.matrix,self.ksize,self.sigmaX,self.sigmaY)
+
+            if self.gaussian_function_tuple_data:
+                self.gaussian_matrixgv,self.normal_matrixgv = self.gaussian_function_tuple_data
+
+                self.axes_object_mrı_monitor[0].imshow(self.gaussian_matrixgv,cmap='gray')
+                self.fig_canvas_t1.draw()
+
+            else:
+                pass
     
+    def sobel_igniter(self):
+        if self.t1_checkbox.isChecked() == True:
+            self.matrix = self.axes_like.get_array()
+
+            self.axes_object_mrı_monitor[0].clear()
+            self.fig_canvas_t1.draw()
+
+            self.sobel_matrix,self.sobel_to_normal_matrix_value = image_processing.sobel_function(self.matrix)
+            
+            self.axes_object_mrı_monitor[0].imshow(self.sobel_matrix,cmap='gray')
+            self.fig_canvas_t1.draw()
     
+    def sobel_to_normal_matrix(self):
+        if self.t1_checkbox.isChecked() == True:
+            self.axes_object_mrı_monitor[0].clear()
+            self.fig_canvas_t1.draw()
+            
+            self.axes_object_mrı_monitor[0].imshow(self.sobel_to_normal_matrix_value,cmap='gray')
+            self.fig_canvas_t1.draw()
 
     def optimize_widget_sizes(self):
         self.checbox_reset_button.setFixedHeight(self.save_mri_image_button.height())
@@ -347,12 +447,13 @@ class MainUİ(QMainWindow):
 
     def export_to_monitor(self,list_item):
         try:
-            name = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[0].split(':')[1].strip()
-            path_c = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[1].split(':')[1].strip()
-            path = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[1].split(':')[2].strip()
+            if self.mri_list.item(self.mri_list.currentRow()).text() == 'Belirtilmedi':
+                pass
 
-            print(name)
-            print(path)
+            else:
+                name = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[0].split(':')[1].strip()
+                path_c = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[1].split(':')[1].strip()
+                path = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[1].split(':')[2].strip()
 
             image_matrix = None
         except Exception as messagebox_error:
@@ -374,13 +475,23 @@ class MainUİ(QMainWindow):
 
             else:
                 try:
-                    file_name = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[0].split(':')[1].strip()
+                    if path == 'Belirtilmedi':
+                        file_name = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[0].split(':')[1].strip()
 
-                    image_matrix = image_processing.to_matrix(path)
-                        
-                    self.axes_object_mrı_monitor[0].imshow(image_matrix,cmap='gray')
-                    self.fig_canvas_t1.draw()
-                    print('f1')
+                        image_matrix = image_processing.to_matrix(file_name)
+                            
+                        self.axes_object_mrı_monitor[0].imshow(image_matrix,cmap='gray')
+                        self.fig_canvas_t1.draw()
+                        print('f1')
+                    
+                    else:
+                        file_name = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[0].split(':')[1].strip()
+
+                        image_matrix = image_processing.to_matrix(path)
+                            
+                        self.axes_object_mrı_monitor[0].imshow(image_matrix,cmap='gray')
+                        self.fig_canvas_t1.draw()
+                        print('f1')
             
                 except:
                     try:
@@ -581,7 +692,6 @@ class MainUİ(QMainWindow):
                             print('f3')
                         except:
                             print('noneeeee')
-
 
             else:   
                 try:
