@@ -4,6 +4,7 @@ from PyQt5.QtGui import*
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT  as NavigationToolbar
 import matplotlib.pyplot as plt
+import numpy as np
 
 import system
 import image_processing
@@ -278,6 +279,8 @@ class MainUİ(QMainWindow):
         self.gaussian_y_slider.valueChanged.connect(self.gaussian_igniter)
         self.gaussian_z_slider.valueChanged.connect(self.gaussian_igniter)
 
+        self.median_slider.valueChanged.connect(self.median_igniter)
+
         self.sobel_button.clicked.connect(self.sobel_igniter)
         self.sobel_to_normal_button.clicked.connect(self.sobel_to_normal_matrix)
 
@@ -293,11 +296,95 @@ class MainUİ(QMainWindow):
             self.axes_like = self.axes_object_mrı_monitor[0].get_images().pop()
             print(self.axes_like)
 
+        if self.t2_checkbox.isChecked() == True:
+            self.axes_like = self.axes_object_mrı_monitor[1].get_images().pop()
+            print(self.axes_like)
+            
+        if self.flair_checkbox.isChecked() == True:
+            self.axes_like = self.axes_object_mrı_monitor[2].get_images().pop()
+            print(self.axes_like)   
+
     def remove_image_from_axes(self):
-        self.axes_object_mrı_monitor[0].clear()
-        self.axes_object_mrı_monitor[0].imshow([[0,0,0,0]])
-        self.axes_like = self.axes_object_mrı_monitor[0].get_images()
-        self.fig_canvas_t1.draw()
+        if self.t1_checkbox.isChecked() == True:
+            self.axes_object_mrı_monitor[0].clear()
+            self.axes_object_mrı_monitor[0].imshow([
+                                                    [1,0,0,0,0,0,0,0,1],
+                                                    [0,1,0,0,0,0,0,1,0],
+                                                    [0,0,1,0,0,0,1,0,0],
+                                                    [0,0,0,1,0,1,0,0,0],
+                                                    [0,0,0,0,1,0,0,0,0],
+                                                    [0,0,0,1,0,1,0,0,0],
+                                                    [0,0,1,0,0,0,1,0,0],
+                                                    [0,1,0,0,0,0,0,1,0],
+                                                    [1,0,0,0,0,0,0,0,1]
+                                                    ],cmap='gray')
+            self.axes_like = self.axes_object_mrı_monitor[0].get_images()
+            self.fig_canvas_t1.draw()
+        
+        if self.t2_checkbox.isChecked() == True:
+            self.axes_object_mrı_monitor[1].clear()
+            self.axes_object_mrı_monitor[1].imshow([
+                                                    [1,0,0,0,0,0,0,0,1],
+                                                    [0,1,0,0,0,0,0,1,0],
+                                                    [0,0,1,0,0,0,1,0,0],
+                                                    [0,0,0,1,0,1,0,0,0],
+                                                    [0,0,0,0,1,0,0,0,0],
+                                                    [0,0,0,1,0,1,0,0,0],
+                                                    [0,0,1,0,0,0,1,0,0],
+                                                    [0,1,0,0,0,0,0,1,0],
+                                                    [1,0,0,0,0,0,0,0,1]
+                                                    ],cmap='gray')
+            self.axes_like = self.axes_object_mrı_monitor[1].get_images()
+            self.fig_canvas_t1.draw()
+
+        if self.flair_checkbox.isChecked() == True:
+            self.axes_object_mrı_monitor[2].clear()
+            self.axes_object_mrı_monitor[2].imshow([
+                                                    [1,0,0,0,0,0,0,0,1],
+                                                    [0,1,0,0,0,0,0,1,0],
+                                                    [0,0,1,0,0,0,1,0,0],
+                                                    [0,0,0,1,0,1,0,0,0],
+                                                    [0,0,0,0,1,0,0,0,0],
+                                                    [0,0,0,1,0,1,0,0,0],
+                                                    [0,0,1,0,0,0,1,0,0],
+                                                    [0,1,0,0,0,0,0,1,0],
+                                                    [1,0,0,0,0,0,0,0,1]
+                                                    ],cmap='gray')
+            self.axes_like = self.axes_object_mrı_monitor[2].get_images()
+            self.fig_canvas_t1.draw()
+
+    def median_igniter(self):
+        self.ksizemv = self.median_slider.value()
+
+        if self.t1_checkbox.isChecked() == True:
+            median_function = image_processing.median_function(self.matrix,self.ksizemv)
+
+            if type(median_function) != str:
+                self.axes_object_mrı_monitor[0].imshow(median_function)
+                self.fig_canvas_t1.draw()
+            
+            else:
+                pass
+
+        if self.t2_checkbox.isChecked() == True:
+            median_function = image_processing.median_function(self.matrix,self.ksizemv)
+
+            if type(median_function) != str:
+                self.axes_object_mrı_monitor[1].imshow(median_function,cmap='gray')
+                self.fig_canvas_t1.draw()
+            
+            else:
+                pass
+
+        if self.flair_checkbox.isChecked() == True:
+            median_function = image_processing.median_function(self.matrix,self.ksizemv)
+
+            if type(median_function) != str:
+                self.axes_object_mrı_monitor[2].imshow(median_function,cmap='gray')
+                self.fig_canvas_t1.draw()
+            
+            else:
+                pass
 
     def threshold_igniter(self):
         if self.t1_checkbox.isChecked() == True:
@@ -356,6 +443,118 @@ class MainUİ(QMainWindow):
                 self.axes_object_mrı_monitor[0].imshow(threshold_matrix,cmap='gray')
                 self.fig_canvas_t1.draw()     
 
+        elif self.t2_checkbox.isChecked() == True:
+            if self.threshold_binary_checkbox.isChecked() == True:
+                self.flag = 'binary'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[1].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()
+            
+            elif self.threshold_binary_inv_checkbox.isChecked() == True:
+                self.flag = 'binary_inv'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[1].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()     
+
+            elif self.threshold_trunc_checkbox.isChecked() == True:
+                self.flag = 'threshold_trunc'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[1].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()    
+            
+            elif self.threshold_tozero_checkbox.isChecked() == True:
+                self.flag = 'threshold_tozero'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[1].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()     
+
+            elif self.threshold_tozero_ınv_checkbox.isChecked() == True:
+                self.flag = 'threshold_tozero_inv'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[1].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()     
+
+        elif self.flair_checkbox.isChecked() == True:
+            if self.threshold_binary_checkbox.isChecked() == True:
+                self.flag = 'binary'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[2].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()
+            
+            elif self.threshold_binary_inv_checkbox.isChecked() == True:
+                self.flag = 'binary_inv'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[2].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()     
+
+            elif self.threshold_trunc_checkbox.isChecked() == True:
+                self.flag = 'threshold_trunc'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[2].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()    
+            
+            elif self.threshold_tozero_checkbox.isChecked() == True:
+                self.flag = 'threshold_tozero'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[2].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()     
+
+            elif self.threshold_tozero_ınv_checkbox.isChecked() == True:
+                self.flag = 'threshold_tozero_inv'
+                self.matrix = self.axes_like.get_array()
+                self.thres = self.threshold_bins_slider.value()
+                self.maxval = self.threshold_maxval_slider.value()
+
+                threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
+
+                self.axes_object_mrı_monitor[2].imshow(threshold_matrix,cmap='gray')
+                self.fig_canvas_t1.draw()     
+
     def gaussian_igniter(self):
         if self.t1_checkbox.isChecked() == True:
             self.matrix = self.axes_like.get_array()
@@ -373,6 +572,40 @@ class MainUİ(QMainWindow):
 
             else:
                 pass
+
+        elif self.t2_checkbox.isChecked() == True:
+            self.matrix = self.axes_like.get_array()
+            self.ksize = (self.gaussian_x_slider.value(),self.gaussian_x_slider.value())
+            self.sigmaX = self.gaussian_y_slider.value()
+            self.sigmaY = self.gaussian_z_slider.value()
+
+            self.gaussian_function_tuple_data = image_processing.gaussian_function(self.matrix,self.ksize,self.sigmaX,self.sigmaY)
+
+            if self.gaussian_function_tuple_data:
+                self.gaussian_matrixgv,self.normal_matrixgv = self.gaussian_function_tuple_data
+
+                self.axes_object_mrı_monitor[1].imshow(self.gaussian_matrixgv,cmap='gray')
+                self.fig_canvas_t1.draw()
+
+            else:
+                pass
+
+        elif self.flair_checkbox.isChecked() == True:
+            self.matrix = self.axes_like.get_array()
+            self.ksize = (self.gaussian_x_slider.value(),self.gaussian_x_slider.value())
+            self.sigmaX = self.gaussian_y_slider.value()
+            self.sigmaY = self.gaussian_z_slider.value()
+
+            self.gaussian_function_tuple_data = image_processing.gaussian_function(self.matrix,self.ksize,self.sigmaX,self.sigmaY)
+
+            if self.gaussian_function_tuple_data:
+                self.gaussian_matrixgv,self.normal_matrixgv = self.gaussian_function_tuple_data
+
+                self.axes_object_mrı_monitor[2].imshow(self.gaussian_matrixgv,cmap='gray')
+                self.fig_canvas_t1.draw()
+
+            else:
+                pass
     
     def sobel_igniter(self):
         if self.t1_checkbox.isChecked() == True:
@@ -385,6 +618,28 @@ class MainUİ(QMainWindow):
             
             self.axes_object_mrı_monitor[0].imshow(self.sobel_matrix,cmap='gray')
             self.fig_canvas_t1.draw()
+
+        if self.t2_checkbox.isChecked() == True:
+            self.matrix = self.axes_like.get_array()
+
+            self.axes_object_mrı_monitor[1].clear()
+            self.fig_canvas_t1.draw()
+
+            self.sobel_matrix,self.sobel_to_normal_matrix_value = image_processing.sobel_function(self.matrix)
+            
+            self.axes_object_mrı_monitor[1].imshow(self.sobel_matrix,cmap='gray')
+            self.fig_canvas_t1.draw()
+
+        if self.flair_checkbox.isChecked() == True:
+            self.matrix = self.axes_like.get_array()
+
+            self.axes_object_mrı_monitor[2].clear()
+            self.fig_canvas_t1.draw()
+
+            self.sobel_matrix,self.sobel_to_normal_matrix_value = image_processing.sobel_function(self.matrix)
+            
+            self.axes_object_mrı_monitor[2].imshow(self.sobel_matrix,cmap='gray')
+            self.fig_canvas_t1.draw()
     
     def sobel_to_normal_matrix(self):
         try:
@@ -393,6 +648,30 @@ class MainUİ(QMainWindow):
                 self.fig_canvas_t1.draw()
                 
                 self.axes_object_mrı_monitor[0].imshow(self.sobel_to_normal_matrix_value,cmap='gray')
+                self.fig_canvas_t1.draw()
+
+        except Exception as sobel_to_normal_matrix_exception:
+            print(f'function: sobel_to_normal_matrix\nerror:{sobel_to_normal_matrix_exception}')
+            pass
+
+        try:
+            if self.t2_checkbox.isChecked() == True:
+                self.axes_object_mrı_monitor[1].clear()
+                self.fig_canvas_t1.draw()
+                
+                self.axes_object_mrı_monitor[1].imshow(self.sobel_to_normal_matrix_value,cmap='gray')
+                self.fig_canvas_t1.draw()
+
+        except Exception as sobel_to_normal_matrix_exception:
+            print(f'function: sobel_to_normal_matrix\nerror:{sobel_to_normal_matrix_exception}')
+            pass
+
+        try:
+            if self.t3_checkbox.isChecked() == True:
+                self.axes_object_mrı_monitor[2].clear()
+                self.fig_canvas_t1.draw()
+                
+                self.axes_object_mrı_monitor[2].imshow(self.sobel_to_normal_matrix_value,cmap='gray')
                 self.fig_canvas_t1.draw()
 
         except Exception as sobel_to_normal_matrix_exception:
