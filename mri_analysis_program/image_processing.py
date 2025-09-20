@@ -126,3 +126,45 @@ def sobel_function(matrix):
     except:
         ws.Beep(1000,500)
         messagebox.showerror('HATA!','Lütfen Bir dosya tanımlayıp tekrar deneyin!')
+
+def tumor_detection_function(matrix):
+    
+    try:
+        normal_image = matrix
+        image = matrix
+        channel = None
+
+        if len(image.shape) == 3:
+            image = image[:,:,1]
+
+        normalized_matrix = (image - np.min(image)) / (np.max(image) - np.min(image))
+
+        thresholded = filters.threshold_otsu(normalized_matrix)
+        binary_mask = normalized_matrix > thresholded
+
+        clean = morphology.remove_small_objects(binary_mask,100)
+        clean = morphology.binary_closing(clean,morphology.disk(3))
+
+        label = measure.label(clean)
+        regionprops = measure.regionprops(label)
+
+        if regionprops:
+            large_objects = max(regionprops, key=lambda r :r.area)
+            tumor_mask = label == large_objects.label
+            
+        else:
+            tumor_mask = np.zeros_like([])
+
+        if len(image.shape) == 1 or len(image.shape) == 2:
+            overlay = np.dstack([normal_image]*1)
+            overlay[tumor_mask] = [0]
+            return overlay
+        
+        else:
+            tumor_mask = filters.sobel(tumor_mask)
+            overlay = np.dstack([normal_image]*3)
+            overlay[tumor_mask] = [0,128,0]
+
+            return overlay
+    except:
+        print(image.shape)

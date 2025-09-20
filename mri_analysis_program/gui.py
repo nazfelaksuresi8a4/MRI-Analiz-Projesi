@@ -266,6 +266,8 @@ class MainUİ(QMainWindow):
         self.add_to_list_button.clicked.connect(self.list_item_igniter)
         self.delete_mri_image_button.clicked.connect(self.delete_list_item_function)
         self.show_mri_image_button.clicked.connect(self.monitor_image_export_igniter)
+        self.checbox_apply_button.clicked.connect(self.other_actions_igniter)
+
         
         #signal-slot-matrix-actions-side#
         self.update_matrix_object.clicked.connect(self.get_current_matrix)
@@ -352,10 +354,21 @@ class MainUİ(QMainWindow):
                                                     ],cmap='gray')
             self.axes_like = self.axes_object_mrı_monitor[2].get_images()
             self.fig_canvas_t1.draw()
+    
+    def other_actions_igniter(self):
+        #self.threshold_splitter.setEnabled(False)
+        #self.threshold_splitter.setWindowOpacity(0.5)
+        if self.tumor_detection_checkbox.isChecked() == True:
+            self.matrix_a = self.axes_like.get_array()
+            if self.t1_checkbox.isChecked() == True:
+                self.tumor_detecetion_output = image_processing.tumor_detection_function(matrix=self.matrix_a)
+
+                self.axes_object_mrı_monitor[0].imshow(self.tumor_detecetion_output,cmap='gray')
+                self.fig_canvas_t1.draw()
 
     def median_igniter(self):
         self.ksizemv = self.median_slider.value()
-
+        self.matrix = self.axes_like.get_array()
         if self.t1_checkbox.isChecked() == True:
             median_function = image_processing.median_function(self.matrix,self.ksizemv)
 
