@@ -38,13 +38,16 @@ Kivy/Tkİnter -> Ekstra bileşenler için
 
 #BACKEND MODÜLLERİ#
 
-numpy -> veri analizi için
-opencv-pyton[cv2] -> Görüntü işleme için
-pandas -> medkal tablolar üzerinde işlem gerçekleştirebilmek için
-skimage -> detaylı medikal görüntü işlemek için
-matplotlib -> Grafik gösterimi / Resim gösterimi -- renderer görevi için
-pyqtgraph -> Gerçek zamanlı grafikler için
-requests -> APİ bağımlılıkları için
+Numpy -> veri analizi için
+Opencv-pyton[cv2] -> Görüntü işleme için
+Pandas -> medikal tablolar üzerinde işlem gerçekleştirebilmek için
+Skimage -> detaylı medikal görüntü işlemek için
+Matplotlib -> Grafik gösterimi / Resim gösterimi -- renderer görevi için
+Pyqtgraph -> Gerçek zamanlı grafikler için
+Requests -> APİ bağımlılıkları için
+Tensorflow -> sinir ağları için
+Keras -> Hazır modeller için 
+
 
 #DETAY#
 
