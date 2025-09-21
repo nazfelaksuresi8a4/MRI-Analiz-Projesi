@@ -143,7 +143,7 @@ def tumor_detection_function(matrix):
         binary_mask = normalized_matrix > thresholded
 
         clean = morphology.remove_small_objects(binary_mask,100)
-        clean = morphology.binary_closing(clean,morphology.disk(3))
+        clean = morphology.binary_closing(clean,morphology.disk(4))
 
         label = measure.label(clean)
         regionprops = measure.regionprops(label)
@@ -157,7 +157,7 @@ def tumor_detection_function(matrix):
 
         if len(image.shape) == 1 or len(image.shape) == 2:
             overlay = np.dstack([normal_image]*1)
-            overlay[tumor_mask] = [0]
+            overlay[tumor_mask] = [1] #burası tümörlü  yeri gösteriyormu yoksa tümörsüz yeri mi gösteriyor emin değilim  
             return overlay
         
         else:

@@ -498,7 +498,7 @@ class MainUİ(QMainWindow):
 
                 threshold_matrix,normal_matrix = image_processing.threshold_function(self.matrix,self.thres,self.maxval,self.flag)
 
-                self.axes_object_mrı_monitor[1].imshow(threshold_matrix,cmap='gray')
+                self.axes_object_mrı_monitor[1].imshow(threshold_matrix,cmap='gray',alpha=0.5)
                 self.fig_canvas_t1.draw()     
 
             elif self.threshold_tozero_ınv_checkbox.isChecked() == True:
