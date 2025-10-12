@@ -26,7 +26,23 @@ class MainUİ(QMainWindow):
         #widget-side#
         self.main_widget = QWidget()
         self.main_widget.setLayout(self.main_layout)
+
+        #taskbar-side#
+        self.menubar_main = self.menuBar()
+        self.file_system_menu = self.menubar_main.addMenu('Dosya sistemim')
+        self.file_sys_menu_open = self.file_system_menu.addAction('Aç')
+        self.file_sys_menu_close = self.file_system_menu.addAction('Kapat')
+
+        self.medical_image_list_menu = self.menubar_main.addMenu('Medikal görüntülerim')
+        self.med_img_lst_menu_open = self.medical_image_list_menu.addAction('Aç')
+        self.med_img_lst_menu_close = self.medical_image_list_menu.addAction('Kapat')
         
+        self.file_system_menu.setIcon(QIcon(r'icons\folder.png'))
+        self.file_system_menu.setWindowIcon(QIcon(r'icons\folder.png'))
+
+        self.medical_image_list_menu.setIcon(QIcon(r'icons\pharmacy.png'))
+        self.medical_image_list_menu.setWindowIcon(QIcon(r'icons\pharmacy.png'))
+
         #splitter-side#
         self.mri_list_splitter = QSplitter(Qt.Vertical)
         self.mri_monitor_image_settings_splitter = QSplitter(Qt.Vertical)
@@ -264,7 +280,7 @@ class MainUİ(QMainWindow):
 
         #timers-side#
         self.optimize_w_timer = QTimer(self)
-        self.optimize_w_timer.start(10)
+        #self.optimize_w_timer.start(10)
         self.optimize_w_timer.timeout.connect(self.optimize_widget_sizes)
 
         #signal-slot-side#
@@ -293,14 +309,22 @@ class MainUİ(QMainWindow):
         self.sobel_button.clicked.connect(self.sobel_igniter)
         self.sobel_to_normal_button.clicked.connect(self.sobel_to_normal_matrix)
 
+        self.file_sys_menu_open.triggered.connect(self.show_file_system)
+        self.file_sys_menu_close.triggered.connect(self.hide_file_system)
+
+        self.med_img_lst_menu_open.triggered.connect(self.show_image_settings)
+        self.med_img_lst_menu_close.triggered.connect(self.hide_image_settings)
+
         #css-define-side#
         self.css_qss_file = open(r'program_css.qss','r').read()
         self.setStyleSheet(str(self.css_qss_file))
 
         self.setCentralWidget(self.main_widget)
 
-        self.msgbox = QMessageBox.question(self,'Dikkat','Ekran boyutunuzu en az 1200x800 yapınız. Aksi takdirde program düzgün çalışmayabilir.',QMessageBox.Ok | QMessageBox.Cancel)
-        if self.msgbox == QMessageBox.Cancel:
+        attention_text = 'Bu program tıbbi bir programdır. Doğrudan teşhis koyamaz, yanlızca önerililerde bulunabilir. Programı kullanarak bunları kabul etmiş varsayılırsınız.'
+
+        self.msgbox = QMessageBox.question(self,'Dikkat',attention_text,QMessageBox.Ok | QMessageBox.Cancel)
+        if self.msgbox != QMessageBox.Cancel:
             self.swap_gui()
         
         else:
@@ -320,7 +344,6 @@ class MainUİ(QMainWindow):
             print(self.axes_like)   
 
     def swap_gui(self):
-        dock_layout = QDockWidget()
 
         #self.mri_monitor_splitter.setParent(None)
         #self.monitor_splitter_container.setParent(None)
@@ -336,11 +359,31 @@ class MainUİ(QMainWindow):
         self.dock1 = QDockWidget()
         self.dock2 = QDockWidget()
 
+        self.dock1.setParent(self)
         self.dock1.setWidget(self.file_system_splitter)
-        self.dock1.show()
+        self.dock1.setFixedWidth(500)
 
+        self.dock2.setParent(self)
         self.dock2.setWidget(self.mri_monitor_image_settings_splitter)
+        self.dock2.setFixedHeight(450)
+        self.dock2.setFixedWidth(300)
+
+        self.dock1.hide()
+        self.dock2.hide()
+    
+    def show_file_system(self):
+        self.dock1.show()
+    
+    def hide_file_system(self):
+        self.dock1.hide()
+    
+    def show_image_settings(self):
         self.dock2.show()
+    
+    def hide_image_settings(self):
+        self.dock2.hide()
+    
+    
 
     def remove_image_from_axes(self):
         if self.t1_checkbox.isChecked() == True:
