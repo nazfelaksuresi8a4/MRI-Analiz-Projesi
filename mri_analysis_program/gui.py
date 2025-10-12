@@ -142,8 +142,12 @@ class MainUİ(QMainWindow):
         self.add_to_list_button = QPushButton(text='Görüntüyü listeye ekle')
         self.delete_image_button = QPushButton(text='Görüntüyü Sil')
 
-        self.axes_like = self.defined_ax.imshow(image_processing.to_matrix('t1.png'))
+        try:
+            self.axes_like = self.defined_ax.imshow(image_processing.to_matrix('t1.png'))
+        except:
+            self.axes_like = self.defined_ax.imshow([[0]*40,[1]*40,[0]*40])
 
+        
         self.t1_checkbox.setText('T1 MRI')
         self.t2_checkbox.setText('T2 MRI')
         self.flair_checkbox.setText('Flair MRI')
@@ -247,10 +251,13 @@ class MainUİ(QMainWindow):
         for a in range(len(self.axes_object_mrı_monitor)):
             self.axes_object_mrı_monitor[a].axis('off')
         
-        self.axes_object_mrı_monitor[0].imshow(image_processing.to_matrix('t1.png'))
-        self.axes_object_mrı_monitor[1].imshow(image_processing.to_matrix('t2.png'))
-        self.axes_object_mrı_monitor[2].imshow(image_processing.to_matrix('tumor.jpg'))
+        try:
+            self.axes_object_mrı_monitor[0].imshow(image_processing.to_matrix('t1.png'))
+            self.axes_object_mrı_monitor[1].imshow(image_processing.to_matrix('t2.png'))
+            self.axes_object_mrı_monitor[2].imshow(image_processing.to_matrix('tumor.jpg'))
 
+        except:
+            pass
         self.axes_object_mrı_monitor[0].set_title('T1-MRI',color='white')
         self.axes_object_mrı_monitor[1].set_title('T2-MRI',color='white')
         self.axes_object_mrı_monitor[2].set_title('Flair-MRI',color='white')
@@ -287,11 +294,17 @@ class MainUİ(QMainWindow):
         self.sobel_to_normal_button.clicked.connect(self.sobel_to_normal_matrix)
 
         #css-define-side#
-        file = open(r'program_css.qss','r').read()
-        self.setStyleSheet(str(file))
+        self.css_qss_file = open(r'program_css.qss','r').read()
+        self.setStyleSheet(str(self.css_qss_file))
 
         self.setCentralWidget(self.main_widget)
 
+        self.msgbox = QMessageBox.question(self,'Dikkat','Ekran boyutunuzu en az 1200x800 yapınız. Aksi takdirde program düzgün çalışmayabilir.',QMessageBox.Ok | QMessageBox.Cancel)
+        if self.msgbox == QMessageBox.Cancel:
+            self.swap_gui()
+        
+        else:
+            pass
 
     def get_current_matrix(self):
         if self.t1_checkbox.isChecked() == True:
@@ -305,6 +318,29 @@ class MainUİ(QMainWindow):
         if self.flair_checkbox.isChecked() == True:
             self.axes_like = self.axes_object_mrı_monitor[2].get_images().pop()
             print(self.axes_like)   
+
+    def swap_gui(self):
+        dock_layout = QDockWidget()
+
+        #self.mri_monitor_splitter.setParent(None)
+        #self.monitor_splitter_container.setParent(None)
+        #self.mri_list_splitter.setParent(None)
+        self.mri_monitor_image_settings_splitter.setParent(None)
+        self.file_system_splitter.setParent(None)
+        #self.image_selecter_splitter.setParent(None)
+        #self.mri_monitor_view_settings_splitter.setParent(None)
+
+        self.mri_monitor_image_settings_splitter.setStyleSheet(str(self.css_qss_file))
+        self.file_system_splitter.setStyleSheet(str(self.css_qss_file))
+
+        self.dock1 = QDockWidget()
+        self.dock2 = QDockWidget()
+
+        self.dock1.setWidget(self.file_system_splitter)
+        self.dock1.show()
+
+        self.dock2.setWidget(self.mri_monitor_image_settings_splitter)
+        self.dock2.show()
 
     def remove_image_from_axes(self):
         if self.t1_checkbox.isChecked() == True:
@@ -777,7 +813,7 @@ class MainUİ(QMainWindow):
             image_matrix = None
         except Exception as messagebox_error:
             error_message = QMessageBox.critical(self,'İşlem yapılamadı!!',f'Lütfen listeden bir mrı seçin!!,{messagebox_error}')
-
+            
         finally:
             name = name
             path_c = path_c
@@ -785,32 +821,73 @@ class MainUİ(QMainWindow):
 
         if self.t1_checkbox.isChecked() == True:
             if path.endswith('.nii'):
-                    dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                    image_matrix = dat
+                    try:
+                        dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
+                        image_matrix = dat
+                            
+                        self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                        self.fig_canvas_t1.draw()
+                        print('f1')
+                    except:
+                        try:
+                            dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=name)
+                            image_matrix = dat
+                                
+                            self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                            self.fig_canvas_t1.draw()
+                            print('f1')
                         
-                    self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,dep - 1],cmap='gray')
-                    self.fig_canvas_t1.draw()
-                    print('f1')
+                        except:
+                            error_message = QMessageBox.critical(self,'İşlem yapılamadı!!',f'Lütfen Başka bir dosya seçin veya dosyanın düzgün olup olmadığını kontrol edin!')
 
             else:
                 try:
                     if path == 'Belirtilmedi':
-                        file_name = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[0].split(':')[1].strip()
+                        try:
+                            file_name = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[0].split(':')[1].strip()
 
-                        image_matrix = image_processing.to_matrix(file_name)
+                            image_matrix = image_processing.to_matrix(file_name)
+                                
+                            self.axes_object_mrı_monitor[0].imshow(image_matrix,cmap='gray')
+                            self.fig_canvas_t1.draw()
+                            print('f1')
+                        
+                        except:
+                            try:
+                                file_name = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[0].split(':')[1].strip()
+
+                                image_matrix = image_processing.to_matrix(file_name)
+                                    
+                                self.axes_object_mrı_monitor[0].imshow(image_matrix,cmap='gray')
+                                self.fig_canvas_t1.draw()
+                                print('f1')
                             
-                        self.axes_object_mrı_monitor[0].imshow(image_matrix,cmap='gray')
-                        self.fig_canvas_t1.draw()
-                        print('f1')
+                            except:
+                                error_message = QMessageBox.critical(self,'İşlem yapılamadı!!',f'Lütfen listeden bir mrı seçin!')
+            
+
                     
                     else:
-                        file_name = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[0].split(':')[1].strip()
+                        try:
+                            file_name = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[0].split(':')[1].strip()
 
-                        image_matrix = image_processing.to_matrix(path)
-                            
-                        self.axes_object_mrı_monitor[0].imshow(image_matrix,cmap='gray')
-                        self.fig_canvas_t1.draw()
-                        print('f1')
+                            image_matrix = image_processing.to_matrix(path)
+                                
+                            self.axes_object_mrı_monitor[0].imshow(image_matrix,cmap='gray')
+                            self.fig_canvas_t1.draw()
+                            print('f1')
+                        except:
+                            try:
+                                file_name = self.mri_list.item(self.mri_list.currentRow()).text().split('\n')[0].split(':')[1].strip()
+
+                                image_matrix = image_processing.to_matrix(name)
+                                    
+                                self.axes_object_mrı_monitor[0].imshow(image_matrix,cmap='gray')
+                                self.fig_canvas_t1.draw()
+                                print('f1')
+                            except:
+                                error_message = QMessageBox.critical(self,'İşlem yapılamadı!!',f'Lütfen listeden bir mrı seçin!')
+            
             
                 except:
                     try:
