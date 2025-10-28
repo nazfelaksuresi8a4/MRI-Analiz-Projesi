@@ -3,3 +3,14 @@
 Tümör tespiti Yapay zeka modelinin temelleri atılıyor 
 
 Güzel olucak..
+
+
+
+#28.10.2025(update)
+
+#4D Görüntüleri işlemekte sorun yaşıyor maksimum olarak 3d arrayleri işleyebiliyor kapasitesi ona el verişli 
+#ÖRN: h,w,d,t = matrix şeklindeki nibabel fdata tuple'larını işleyemiyor
+
+
+#Bunun için birşeyler yapıcam(4D ve 3D 2D 1D Ayırt eden bir karar yapısı koymam gerek düzgün çalışmalı yoksa program düzgün çalışamaz)
+
