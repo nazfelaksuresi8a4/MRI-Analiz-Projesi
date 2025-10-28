@@ -15,6 +15,8 @@ class MainUİ(QMainWindow):
         super().__init__()
         self.setWindowTitle('MGAA Medikal Görüntü Analiz Aracı')
 
+        self.current_medical_file = None
+        self.current_medical_file_shape = None
         self.current_list_item_image_path = None
         self.current_selected = None
         self.current_selected_name = None
@@ -347,7 +349,11 @@ class MainUİ(QMainWindow):
     
     def depth_slider_function(self):
         if self.t1_checkbox.isChecked() == True:
-            current_slice = image_processing.mrı_slice_returner()
+            h,w,d = self.current_medical_file_shape
+
+            current_slice = image_processing.mrı_slice_returner(self.current_medical_file,h,w,d)
+
+            print(current_slice)
 
     def swap_gui(self):
 
@@ -832,13 +838,19 @@ class MainUİ(QMainWindow):
 
             elif self.current_selected.endswith('.nii') or self.current_selected.endswith('.nii.gz'):
                 method = file_actions.matrix_returner(path=self.current_selected,name=self.current_selected_name) 
+                
+                self.current_medical_file = method[0]
+                self.current_medical_file_shape = self.current_medical_file.shape
+
+                h,w,d = self.current_medical_file_shape
 
                 if method:
-                    print(method)
+                    self.defined_ax.imshow(self.current_medical_file[:,:,d - 1],cmap='gray')
+                    self.defined_figurecanvas_object.draw()
+
+
                 else:
-                    print(method)
-
-
+                    print('dont found file',method)
 
             else:
                 warnin_message = QMessageBox.warning(self,'TANİMLAMA İSLEMİ BASARİSİZ','Lütfen aşağıdaki belirtilen dosya uzantıları hariç bir dosyayı tanımlamaya çalışmayınız:\n\n.nii .dcm .png .jpg')
@@ -870,6 +882,8 @@ class MainUİ(QMainWindow):
                     try:
                         self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
                         image_matrix = self.dat
+                        self.current_medical_file = self.dat
+                        self.current_medical_file_shape = self.current_medical_file.shape
                             
                         self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                         self.fig_canvas_t1.draw()
@@ -878,7 +892,9 @@ class MainUİ(QMainWindow):
                         try:
                             self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=name)
                             image_matrix = self.dat
-                                
+                            self.current_medical_file = self.dat
+                            self.current_medical_file_shape = self.current_medical_file.shape
+
                             self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,self.depdep - 1],cmap='gray')
                             self.fig_canvas_t1.draw()
                             print('f1')
@@ -944,6 +960,8 @@ class MainUİ(QMainWindow):
                 
                             self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
                             image_matrix = self.dat
+                            self.current_medical_file = self.dat
+                            self.current_medical_file_shape = self.current_medical_file.shape
                                 
                             self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                             self.fig_canvas_t1.draw()
@@ -957,6 +975,8 @@ class MainUİ(QMainWindow):
                     
                                 self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
                                 image_matrix = self.dat
+                                self.current_medical_file = self.dat
+                                self.current_medical_file_shape = self.current_medical_file.shape
                                     
                                 self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                                 self.fig_canvas_t1.draw()
@@ -983,6 +1003,9 @@ class MainUİ(QMainWindow):
                 try:
                     self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
                     image_matrix = self.dat 
+                    self.current_medical_file = self.dat
+                    self.current_medical_file_shape = self.current_medical_file.shape
+
                     if image_matrix == None:
                         pass
                     
@@ -998,6 +1021,8 @@ class MainUİ(QMainWindow):
             if path.endswith('.nii') or self.current_selected.endswith('.nii.gz'):
                     self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
                     image_matrix = self.dat
+                    self.current_medical_file = self.dat
+                    self.current_medical_file_shape = self.current_medical_file.shape
                         
                     self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                     self.fig_canvas_t1.draw()
@@ -1022,6 +1047,8 @@ class MainUİ(QMainWindow):
                 
                             self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
                             image_matrix = self.dat
+                            self.current_medical_file = self.dat
+                            self.current_medical_file_shape = self.current_medical_file.shape
                                 
                             self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                             self.fig_canvas_t1.draw()
@@ -1035,6 +1062,8 @@ class MainUİ(QMainWindow):
                     
                                 self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
                                 image_matrix = self.dat
+                                self.current_medical_file = self.dat
+                                self.current_medical_file_shape = self.current_medical_file.shape
                                     
                                 self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                                 self.fig_canvas_t1.draw()
@@ -1061,6 +1090,9 @@ class MainUİ(QMainWindow):
                 try:
                     self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
                     image_matrix = self.dat 
+                    self.current_medical_file = self.dat
+                    self.current_medical_file_shape = self.current_medical_file.shape
+
                     if image_matrix == None:
                         pass
                     
@@ -1077,6 +1109,8 @@ class MainUİ(QMainWindow):
             if path.endswith('.nii') or self.current_selected.endswith('.nii.gz'):
                     self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
                     image_matrix = self.dat
+                    self.current_medical_file = self.dat
+                    self.current_medical_file_shape = self.current_medical_file.shape
                         
                     self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                     self.fig_canvas_t1.draw()
@@ -1101,6 +1135,8 @@ class MainUİ(QMainWindow):
                 
                             self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
                             image_matrix = self.dat
+                            self.current_medical_file = self.dat
+                            self.current_medical_file_shape = self.current_medical_file.shape
                                 
                             self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                             self.fig_canvas_t1.draw()
@@ -1114,6 +1150,9 @@ class MainUİ(QMainWindow):
                     
                                 self.dat,self.self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
                                 image_matrix = self.dat
+                                self.current_medical_file = self.dat
+                                self.current_medical_file_shape = self.current_medical_file.shape
+
                                     
                                 self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                                 self.fig_canvas_t1.draw()
@@ -1139,6 +1178,9 @@ class MainUİ(QMainWindow):
                 try:
                     self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
                     image_matrix = self.dat 
+                    self.current_medical_file = self.dat
+                    self.current_medical_file_shape = self.current_medical_file.shape
+
                     if image_matrix == None:
                         pass
                     
