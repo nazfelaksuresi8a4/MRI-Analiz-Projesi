@@ -315,6 +315,8 @@ class MainUİ(QMainWindow):
         self.med_img_lst_menu_open.triggered.connect(self.show_image_settings)
         self.med_img_lst_menu_close.triggered.connect(self.hide_image_settings)
 
+        self.depth_slider.valueChanged.connect(self.depth_slider_function)
+
         #css-define-side#
         self.css_qss_file = open(r'program_css.qss','r').read()
         self.setStyleSheet(str(self.css_qss_file))
@@ -342,6 +344,10 @@ class MainUİ(QMainWindow):
         if self.flair_checkbox.isChecked() == True:
             self.axes_like = self.axes_object_mrı_monitor[2].get_images().pop()
             print(self.axes_like)   
+    
+    def depth_slider_function(self):
+        if self.t1_checkbox.isChecked() == True:
+            current_slice = image_processing.mrı_slice_returner()
 
     def swap_gui(self):
 
@@ -812,7 +818,7 @@ class MainUİ(QMainWindow):
 
         self.current_list_item_image_path = self.current_selected
 
-        try:
+        if True:
             if  self.current_selected.endswith('.png') or self.current_selected.endswith('jpg') or self.current_selected.endswith('jpeg'):
                 print(self.current_selected)
                 information_message = QMessageBox.information(self,'TANİMLAMA İSLEMİ BASARİLİ','Medikal goruntu dosyasi basari ile tanimlandi!')
@@ -824,24 +830,21 @@ class MainUİ(QMainWindow):
                     self.axes_like = self.defined_ax.imshow(image_processing.to_matrix(self.current_selected))
                     self.defined_figurecanvas_object.draw()
 
-            elif self.current_selected.endswith('.nii'):
+            elif self.current_selected.endswith('.nii') or self.current_selected.endswith('.nii.gz'):
                 method = file_actions.matrix_returner(path=self.current_selected,name=self.current_selected_name) 
-                data,height,width,depth = method
 
-                self.defined_ax.clear()
-                self.defined_figurecanvas_object.draw()
-                
-                self.axes_like = self.defined_ax.imshow(data[:,:,depth - 1],cmap='gray')
-                self.defined_figurecanvas_object.draw()
+                if method:
+                    print(method)
+                else:
+                    print(method)
 
-                self.depth_slider.setRange(0,depth)
+
 
             else:
                 warnin_message = QMessageBox.warning(self,'TANİMLAMA İSLEMİ BASARİSİZ','Lütfen aşağıdaki belirtilen dosya uzantıları hariç bir dosyayı tanımlamaya çalışmayınız:\n\n.nii .dcm .png .jpg')
                 
                     
-        except Exception as exception_1:
-            print(exception_1)
+
 
     def export_to_monitor(self,list_item):
         try:
@@ -863,20 +866,20 @@ class MainUİ(QMainWindow):
             path = path
 
         if self.t1_checkbox.isChecked() == True:
-            if path.endswith('.nii'):
+            if path.endswith('.nii') or self.current_selected.endswith('.nii.gz'):
                     try:
-                        dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                        image_matrix = dat
+                        self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
+                        image_matrix = self.dat
                             
-                        self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                        self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                         self.fig_canvas_t1.draw()
                         print('f1')
                     except:
                         try:
-                            dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=name)
-                            image_matrix = dat
+                            self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=name)
+                            image_matrix = self.dat
                                 
-                            self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                            self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,self.depdep - 1],cmap='gray')
                             self.fig_canvas_t1.draw()
                             print('f1')
                         
@@ -934,15 +937,15 @@ class MainUİ(QMainWindow):
             
                 except:
                     try:
-                        if path.endswith('.nii'):
+                        if path.endswith('.nii') or self.current_selected.endswith('.nii.gz'):
                             warning_message = QMessageBox.warning(self,'Dosyan bulunamıyor','Sistem dosyayı bulamadı. Lütfen dosyayı manuel olarak Tekrar seçiniz!') 
 
                             current_url,string = QFileDialog(self).getOpenFileUrl(self)           
                 
-                            dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                            image_matrix = dat
+                            self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
+                            image_matrix = self.dat
                                 
-                            self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                            self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                             self.fig_canvas_t1.draw()
                             print('f2')
                         
@@ -952,10 +955,10 @@ class MainUİ(QMainWindow):
 
                                 current_url,string = QFileDialog(self).getOpenFileUrl(self)           
                     
-                                dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                                image_matrix = dat
+                                self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
+                                image_matrix = self.dat
                                     
-                                self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                                self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                                 self.fig_canvas_t1.draw()
                                 print('f2')
                             except:
@@ -968,7 +971,7 @@ class MainUİ(QMainWindow):
 
                             current_name = 'none'     
 
-                            self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                            self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                             self.fig_canvas_t1.draw()
                             
                             print('f3')
@@ -978,13 +981,13 @@ class MainUİ(QMainWindow):
 
              
                 try:
-                    dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                    image_matrix = dat 
+                    self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
+                    image_matrix = self.dat 
                     if image_matrix == None:
                         pass
                     
                     else:
-                        self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                        self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                         self.fig_canvas_t1.draw()
                         print('f4')
                 except:
@@ -992,11 +995,11 @@ class MainUİ(QMainWindow):
                     pass
 
         elif self.t2_checkbox.isChecked() == True:
-            if path.endswith('.nii'):
-                    dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                    image_matrix = dat
+            if path.endswith('.nii') or self.current_selected.endswith('.nii.gz'):
+                    self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
+                    image_matrix = self.dat
                         
-                    self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                    self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                     self.fig_canvas_t1.draw()
                     print('f1')
 
@@ -1006,21 +1009,21 @@ class MainUİ(QMainWindow):
 
                     image_matrix = image_processing.to_matrix(file_actions.matrix_returner(name=file_name,path=path))
                         
-                    self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                    self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                     self.fig_canvas_t1.draw()
                     print('f1')
             
                 except:
                     try:
-                        if path.endswith('.nii'):
+                        if path.endswith('.nii') or self.current_selected.endswith('.nii.gz'):
                             warning_message = QMessageBox.warning(self,'Dosyan bulunamıyor','Sistem dosyayı bulamadı. Lütfen dosyayı manuel olarak Tekrar seçiniz!') 
 
                             current_url,string = QFileDialog(self).getOpenFileUrl(self)           
                 
-                            dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                            image_matrix = dat
+                            self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
+                            image_matrix = self.dat
                                 
-                            self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                            self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                             self.fig_canvas_t1.draw()
                             print('f2')
                         
@@ -1030,10 +1033,10 @@ class MainUİ(QMainWindow):
 
                                 current_url,string = QFileDialog(self).getOpenFileUrl(self)           
                     
-                                dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                                image_matrix = dat
+                                self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
+                                image_matrix = self.dat
                                     
-                                self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                                self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                                 self.fig_canvas_t1.draw()
                                 print('f2')
                             except:
@@ -1046,7 +1049,7 @@ class MainUİ(QMainWindow):
 
                             current_name = 'none'     
 
-                            self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                            self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                             self.fig_canvas_t1.draw()
                             
                             print('f3')
@@ -1056,13 +1059,13 @@ class MainUİ(QMainWindow):
 
             else:   
                 try:
-                    dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                    image_matrix = dat 
+                    self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
+                    image_matrix = self.dat 
                     if image_matrix == None:
                         pass
                     
                     else:
-                        self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                        self.axes_object_mrı_monitor[1].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                         self.fig_canvas_t1.draw()
                         print('f4')
                 except:
@@ -1071,11 +1074,11 @@ class MainUİ(QMainWindow):
 
 
         elif self.flair_checkbox.isChecked() == True:
-            if path.endswith('.nii'):
-                    dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                    image_matrix = dat
+            if path.endswith('.nii') or self.current_selected.endswith('.nii.gz'):
+                    self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
+                    image_matrix = self.dat
                         
-                    self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                    self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                     self.fig_canvas_t1.draw()
                     print('f1')
 
@@ -1085,7 +1088,7 @@ class MainUİ(QMainWindow):
 
                     image_matrix = image_processing.to_matrix(file_actions.matrix_returner(name=file_name,path=path))
                         
-                    self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                    self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                     self.fig_canvas_t1.draw()
                     print('f1')
             
@@ -1096,10 +1099,10 @@ class MainUİ(QMainWindow):
 
                             current_url,string = QFileDialog(self).getOpenFileUrl(self)           
                 
-                            dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                            image_matrix = dat
+                            self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
+                            image_matrix = self.dat
                                 
-                            self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                            self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                             self.fig_canvas_t1.draw()
                             print('f2')
                         
@@ -1109,10 +1112,10 @@ class MainUİ(QMainWindow):
 
                                 current_url,string = QFileDialog(self).getOpenFileUrl(self)           
                     
-                                dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                                image_matrix = dat
+                                self.dat,self.self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
+                                image_matrix = self.dat
                                     
-                                self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                                self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                                 self.fig_canvas_t1.draw()
                                 print('f2')
                             except:
@@ -1125,7 +1128,7 @@ class MainUİ(QMainWindow):
 
                             current_name = 'none'     
 
-                            self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                            self.axes_object_mrı_monitor[2].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                             self.fig_canvas_t1.draw()
                             
                             print('f3')
@@ -1134,13 +1137,13 @@ class MainUİ(QMainWindow):
 
             else:   
                 try:
-                    dat,hei,wid,dep = file_actions.matrix_returner(name=name,path=path)
-                    image_matrix = dat 
+                    self.dat,self.hei,self.wid,self.dep = file_actions.matrix_returner(name=name,path=path)
+                    image_matrix = self.dat 
                     if image_matrix == None:
                         pass
                     
                     else:
-                        self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,dep - 1],cmap='gray')
+                        self.axes_object_mrı_monitor[0].imshow(image_matrix[:,:,self.dep - 1],cmap='gray')
                         self.fig_canvas_t1.draw()
                         print('f4')
                 except:
