@@ -168,3 +168,8 @@ def tumor_detection_function(matrix):
             return overlay
     except:
         print(image.shape)
+
+def mrı_slice_returner(dat,h,w,d):
+    matrix = dat
+
+    return h,w,d
