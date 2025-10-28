@@ -9,7 +9,7 @@ def matrix_returner(path,name):
 
                     nib_file = nib.load(string_path)
 
-                    fdata = nib_file.get_data()
+                    fdata = nib_file.get_fdata()
                     
                     h,w,d = fdata.shape
 
@@ -20,7 +20,7 @@ def matrix_returner(path,name):
 
                         nib_file = nib.load(string_path)
 
-                        fdata = nib_file.get_data()
+                        fdata = nib_file.get_fdata()
                         
                         h,w,d = fdata.shape
 
