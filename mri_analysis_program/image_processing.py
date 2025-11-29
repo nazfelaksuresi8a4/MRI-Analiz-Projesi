@@ -169,7 +169,15 @@ def tumor_detection_function(matrix):
     except:
         print(image.shape)
 
-def mrı_slice_returner(dat,h,w,d):
+def mrı_slice_returner(dat,h,w,d,val):
     matrix = dat
 
-    return h,w,d
+    if val == d - 2:
+        val = d - 2
+    
+    else:
+        pass
+
+    image = dat[:,:,val]
+
+    return h,w,d,image
