@@ -351,7 +351,11 @@ class MainUİ(QMainWindow):
         if self.t1_checkbox.isChecked() == True:
             h,w,d = self.current_medical_file_shape
 
-            current_slice = image_processing.mrı_slice_returner(self.current_medical_file,h,w,d)
+            current_slice = image_processing.mrı_slice_returner(dat=self.current_medical_file,
+                                                                h=h,
+                                                                w=w,
+                                                                d=d,
+                                                                val=self.depth_slider.value())
 
             print(current_slice)
 
@@ -1208,13 +1212,29 @@ class MainUİ(QMainWindow):
             print(self.axes_like)   
     
     def depth_slider_function(self):
-        if self.t1_checkbox.isChecked() == True:
-            h,w,d = self.current_medical_file_shape
+        h,w,d = self.current_medical_file_shape
 
-            current_slice = image_processing.mrı_slice_returner(self.current_medical_file,h,w,d)
-
+        if self.depth_slider.value() == d - 2:
+            pass
+            
+        elif self.depth_slider.value() < d - 2:
+            current_slice = image_processing.mrı_slice_returner(self.current_medical_file,h,w,d,self.depth_slider.value())
             print(current_slice)
 
+            if self.t1_checkbox.isChecked() == True:
+                            self.axes_object_mrı_monitor[0].clear()
+                            self.axes_object_mrı_monitor[0].imshow(current_slice[3],cmap='gray')
+
+            if self.t2_checkbox.isChecked() == True:
+                            self.axes_object_mrı_monitor[1].clear()
+                            self.axes_object_mrı_monitor[1].imshow(current_slice[3],cmap='gray')
+
+            if self.flair_checkbox.isChecked() == True:
+                            self.axes_object_mrı_monitor[2].clear()
+                            self.axes_object_mrı_monitor[2].imshow(current_slice[3],cmap='gray')
+                
+            self.fig_canvas_t1.draw()
+            
     def swap_gui(self):
 
         #self.mri_monitor_splitter.setParent(None)
@@ -2162,4 +2182,3 @@ def startGui():
     sw = MainUİ()
     sw.show()
     system_scope = system.SystemActions().exit_gui_thread()
-
