@@ -197,8 +197,8 @@ class MainUİ(QMainWindow):
         self.median_splitter.addWidget(self.median_label)
         self.median_splitter.addWidget(self.median_slider)
 
-        self.blur_splitter.addWidget(self.blur_label)
-        self.blur_splitter.addWidget(self.blur_slider)
+        #self.blur_splitter.addWidget(self.blur_label)
+        #self.blur_splitter.addWidget(self.blur_slider)
 
         self.monitor_splitter_container.addWidget(self.mri_list_splitter)
         self.monitor_splitter_container.addWidget(self.mri_monitor_image_settings_splitter)
@@ -305,6 +305,7 @@ class MainUİ(QMainWindow):
         self.gaussian_x_slider.valueChanged.connect(self.gaussian_igniter)
         self.gaussian_y_slider.valueChanged.connect(self.gaussian_igniter)
         self.gaussian_z_slider.valueChanged.connect(self.gaussian_igniter)
+        self.blur_slider.valueChanged.connect(self.blur_igniter)
 
         self.median_slider.valueChanged.connect(self.median_igniter)
 
@@ -473,38 +474,63 @@ class MainUİ(QMainWindow):
                 self.axes_object_mrı_monitor[0].imshow(self.tumor_detecetion_output,cmap='gray')
                 self.fig_canvas_t1.draw()
 
+    def blur_igniter(self):
+        self.get_current_matrix()
+        self.matrix = self.axes_like.get_array()
+
+        self.blur_fnc = image_processing.blur_function(self.matrix,self.blur_slider.value())  
+        
+        if self.t1_checkbox.isChecked() == True:
+            self.axes_object_mrı_monitor[0].clear()
+            self.axes_object_mrı_monitor[0].imshow(self.matrix,cmap='gray')
+            self.fig_canvas_t1.draw()
+
+        elif self.t2_checkbox.isChecked() == True:
+            self.axes_object_mrı_monitor[1].clear()
+            self.axes_object_mrı_monitor[1].imshow(self.matrix,cmap='gray')
+            self.fig_canvas_t1.draw()
+        
+        elif self.flair_checkbox.isChecked() == True:
+            self.axes_object_mrı_monitor[2].clear()
+            self.axes_object_mrı_monitor[2].imshow(self.matrix,cmap='gray')
+            self.fig_canvas_t1.draw()
+
     def median_igniter(self):
         self.ksizemv = self.median_slider.value()
         self.matrix = self.axes_like.get_array()
-        if self.t1_checkbox.isChecked() == True:
-            median_function = image_processing.median_function(self.matrix,self.ksizemv)
 
-            if type(median_function) != str:
-                self.axes_object_mrı_monitor[0].imshow(median_function)
-                self.fig_canvas_t1.draw()
-            
-            else:
-                pass
+        if self.ksizemv %2 != 0:
+            median_function = image_processing.median_function(self.matrix,self.ksizemv,'.nii.gz')
+            if median_function is not None:
+                median_function_matrix_object = median_function
 
-        if self.t2_checkbox.isChecked() == True:
-            median_function = image_processing.median_function(self.matrix,self.ksizemv)
+                if median_function_matrix_object is not None:
+                    if self.t1_checkbox.isChecked() == True:
+                        if type(median_function_matrix_object) != str:
+                            self.axes_object_mrı_monitor[0].imshow(median_function_matrix_object)
+                            self.fig_canvas_t1.draw()
+                        
+                        else:
+                            pass
 
-            if type(median_function) != str:
-                self.axes_object_mrı_monitor[1].imshow(median_function,cmap='gray')
-                self.fig_canvas_t1.draw()
-            
-            else:
-                pass
+                    if self.t2_checkbox.isChecked() == True:
+                        if type(median_function_matrix_object) != str:
+                            self.axes_object_mrı_monitor[1].imshow(median_function_matrix_object,cmap='gray')
+                            self.fig_canvas_t1.draw()
+                        
+                        else:
+                            pass
 
-        if self.flair_checkbox.isChecked() == True:
-            median_function = image_processing.median_function(self.matrix,self.ksizemv)
-
-            if type(median_function) != str:
-                self.axes_object_mrı_monitor[2].imshow(median_function,cmap='gray')
-                self.fig_canvas_t1.draw()
-            
-            else:
-                pass
+                    if self.flair_checkbox.isChecked() == True:
+                        if type(median_function_matrix_object) != str:
+                            self.axes_object_mrı_monitor[2].imshow(median_function_matrix_object,cmap='gray')
+                            self.fig_canvas_t1.draw()
+                        
+                        else:
+                            pass
+                
+                else:
+                    print('passed')
 
     def threshold_igniter(self):
         if self.t1_checkbox.isChecked() == True:
@@ -1318,4 +1344,5 @@ def startGui():
     sw = MainUİ()
     sw.show()
     system_scope = system.SystemActions().exit_gui_thread()
+
 
