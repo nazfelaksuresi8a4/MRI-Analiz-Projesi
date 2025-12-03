@@ -76,28 +76,32 @@ def gaussian_function(matrix,kszie,sigmax,sigmay):
     try:
         if k1 %2 != 0 and k2 %2 != 0:
             gaussian = cv.GaussianBlur(normal,ksizev,sigmaxv,sigmayv)
-
+            
             return (gaussian,normal)
     except:
         ws.Beep(1000,500)
         messagebox.showerror('HATA!','Lütfen Bir dosya tanımlayıp tekrar deneyin!')
 
-def median_function(matrix,ksize):
+def median_function(matrix,ksize,flag=None):
     normalv = matrix
     ksizev = ksize
     shape = matrix.shape
 
-    if ksizev %2 != 0 and len(shape) %2 != 0:
-        return cv.medianBlur(matrix,ksizev)
+    if ksizev %2 != 0 and len(shape) >= 2:
+        try:
+            return cv.medianBlur(matrix.astype('uint8'),ksizev)
+            print(normal.dtype)
+        except Exception as kernel_size_exception:
+            try:
+                return cv.medianBlur(matrix.astype('uint8'),ksizev)
+                print(normal.dtype)
 
-    else:
-        return 'image_processing_failure'
-
-def blur_function(matrix,value):
-    normalv = matrix
-    valuev = value
+            except Exception as kernel_size_exception2:
+                print(ksizev,shape,kernel_size_exception,kernel_size_exception2)
     
-    return cv.blur(matrix,valuev)
+    else:
+        return None
+
 
 def sobel_function(matrix):
     normal_matrix = matrix 
