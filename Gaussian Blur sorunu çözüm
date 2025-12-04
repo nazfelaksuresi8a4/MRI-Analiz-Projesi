@@ -1,3 +1,3 @@
 durum: çözüldü
 
-Bu sorun OpenCv2 nin Gaussian Blur fonksiyonunun desteklemediği veri tipi olan float32 formatlı matrix almasıydı bunu uint8 yaparak düzelttim ve Gauss'un blur uygulanabilir hale geldi şu anki olası sorun ise şu; float32 veya başka veri tipinde olan bir matrix uint8 veya 16 formarına dönüştürürken görüntüde bozulmalar meydana gelmesi sanıldığımdan daha olası bununda önüne geçmem lazım 
+Bu sorun OpenCv2 nin Median Blur fonksiyonunun veya diğer bir adı ile medyan filtresinin; desteklemediği veri tipi olan float32 formatlı matrix almasıydı bunu uint8 yaparak düzelttim ve Gauss'un blur uygulanabilir hale geldi şu anki olası sorun ise şu; float32 veya başka veri tipinde olan bir matrix uint8 veya 16 formarına dönüştürürken görüntüde bozulmalar meydana gelmesi sanıldığımdan daha olası bununda önüne geçmem lazım 
